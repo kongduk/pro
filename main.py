@@ -18,8 +18,8 @@ movies_data = {
     "애니메이션": "날씨의 아이",
 }
 
-# 가짜 영화 데이터 생성
-def fake_movie_data(num_movies=100):
+# 가짜 영화
+def fake(num_movies=100):
     genres = list(movies_data.keys())
     movies = []
     
@@ -32,35 +32,22 @@ def fake_movie_data(num_movies=100):
 
 @app.get("/", response_class=HTMLResponse)
 async def show_movies():
-    # 영화 데이터 생성 (매번 새로운 데이터 생성)
-    movies = fake_movie_data()
-
-    # 데이터프레임으로 변환
+    movies = fake()
     df = pd.DataFrame(movies)
-
-    # 장르별 영화 수 계산
     genre_counts = df['genre'].value_counts()
-
-    # 막대 그래프 생성
     plt.figure(figsize=(10, 6))
-    plt.rc('font', family='Apple SD Gothic Neo')  # 맥에서 한글 폰트 설정
+    plt.rc('font', family='Apple SD Gothic Neo')
     genre_counts.plot(kind='bar', color='skyblue')
-    plt.title('장르별 영화 수', fontsize=16)
+    plt.title('장르별 관객 수', fontsize=16)
     plt.xlabel('장르', fontsize=14)
-    plt.ylabel('영화 수', fontsize=14)
+    plt.ylabel('관객 수', fontsize=14)
     plt.xticks(rotation=45, fontsize=12)
-
-    # 그래프 저장
     plt.tight_layout()
     graph_path = "movie_genres.png"
     plt.savefig(graph_path)
     plt.close()
-
-    # 가장 높은 장르 찾기
-    top_genre = genre_counts.idxmax()
-    recommended_movie = movies_data[top_genre]
-
-    # HTML 페이지 생성
+    top = genre_counts.idxmax()
+    recommended_movie = movies_data[top]
     html_content = f"""
     <html>
         <head>
@@ -75,10 +62,10 @@ async def show_movies():
         </head>
         <body>
             <h1>영화 추천 시스템</h1>
-            <h2>장르별 영화 수</h2>
+            <h2>장르별 관객 수</h2>
             <img src="/static/{graph_path}" alt="장르별 영화 수 그래프">
             
-            <h2>추천 영화 ({top_genre} 장르)</h2>
+            <h2>추천 영화 ({top} 장르)</h2>
             <p>{recommended_movie}</p>
         </body>
     </html>
